@@ -1,0 +1,116 @@
+import { useState } from "react";
+import { View, StyleSheet, Text, TextInput, Button } from "react-native";
+import Storage from "../componentes/Storage"
+
+export default function Login() {
+  
+  let [usuario, setUsuario] = useState('')
+  let [senha, setSenha] = useState('')
+
+  async function Entrar() {
+
+    try {
+
+      const request = await fetch("http://192.168.1.8:3000/api/loginadm", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          Usuario: usuario,
+          Senha: senha
+        })
+      })
+      const res = await request.json()
+
+      Storage.set(res)
+      
+      console.log(Storage.get())
+
+    }
+    catch(erro) {
+      console.log(erro)
+    }
+  }
+
+  return (
+    <View style={styled.Main}>
+      
+      <View style={styled.Conteiner}>
+
+        <Text style={styled.Titulo}>Login</Text>
+
+        <Text style={styled.texto}>Usuario:</Text>
+        <TextInput
+        onChangeText={(txt) => setUsuario(txt)}
+        value={usuario}
+        placeholder="Nome do usuario" style={styled.input}></TextInput>
+
+        <Text style={styled.texto}>Senha:</Text>
+        <TextInput 
+        onChangeText={(txt) => setSenha(txt)}
+        value={senha}
+        placeholder="Senha" secureTextEntry={true} style={styled.input}></TextInput>
+
+        <View style={styled.BtnEntrar}>
+          <Button
+          onPress={Entrar} 
+          title="Entrar"
+          color={"#1dc71d"}
+          />
+        </View>
+      
+      </View>
+
+    </View>
+  )
+}
+
+const styled = StyleSheet.create({
+  Main: {
+    backgroundColor: "#363636",
+    height: "100%",
+
+    alignItems: "center",
+    justifyContent: "center"
+  },
+
+  Conteiner: {
+    width: "90%",
+    height: "70%",
+
+    display: "flex",
+
+    backgroundColor: "#ffffff",
+    borderRadius: 10,
+
+    justifyContent:"center"
+  },
+
+  texto: {
+    marginLeft: 20,
+    marginBottom: 5
+  },
+
+  input: {
+    borderWidth: 2,
+    borderColor: "black",
+    borderRadius: 5,
+
+    width: "80%",
+    alignSelf: "center",
+
+    marginBottom: 20
+  },
+
+  Titulo: {
+    fontWeight: "500",
+
+    alignSelf: "center"
+  },
+
+  BtnEntrar: {
+    width: "50%",
+    alignSelf: "center"
+  }
+})
