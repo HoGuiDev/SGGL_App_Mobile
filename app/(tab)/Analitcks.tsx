@@ -1,9 +1,9 @@
 import { View, Text } from "react-native"
 
-export default function Gerenciador() {
+export default function Analitcks() {
     return (
         <View>
-            <Text>Gerenciador!</Text>
+            <Text>Analizando</Text>
         </View>
     )
 }
