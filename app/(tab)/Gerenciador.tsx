@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { View, Text, FlatList, TextInput, Switch, Button, TouchableHighlight  } from "react-native"
+import { View, Text, FlatList, TextInput, Switch, Button, TouchableHighlight, Modal } from "react-native"
 import { StyleSheet } from "react-native"
 import Storage from "../../componentes/Storage"
 
@@ -9,6 +9,9 @@ export default function Gerenciador() {
   const [Sabor, setSabor] = useState("")
   const [Valor, setValor] = useState("")
   const [Quantidade, setQuantidade] = useState("")
+
+  const [Editar, setEditar] = useState([])
+  const [ModalVisivel, setModalVisivel] = useState(false)
 
   const [DB, setDB] = useState()
 
@@ -36,14 +39,167 @@ export default function Gerenciador() {
     console.log(DB)
   }, [])
 
-  function AdicionarItem() {
-    console.log(Sabor)
+  function PegarDados() {
+    const getDados = async () => {
+      try {
+        const token = await Storage.get()
+        fetch("http://192.168.1.8:3000/api/get_gerenciador", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        })
+          .then((res) => res.json()).then((res) => (setDB(res)))
+
+      }
+      catch (err) {
+        console.warn(err)
+      }
+    }
+
+    getDados()
+  }
+
+  async function AdicionarItem() {
+    const token = await Storage.get()
+    if (Sabor != "") {
+      if (Valor != "") {
+        if (Quantidade != "") {
+          const request = await fetch("http://192.168.1.8:3000/api/add", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              sabor: Sabor,
+              quantidade: Quantidade,
+              valor: Valor,
+              disponivel: Disponivel == true ? "1" : "0"
+            })
+          })
+        }
+        else {
+          console.log("Preencha todos os campos!")
+        }
+      }
+      else {
+        console.log("Preencha todos os campos!")
+      }
+    }
+    else {
+      console.log("Preencha todos os campos!")
+    }
+
+    setValor("")
+    setSabor("")
+    setDisponivel(false)
+    setQuantidade("")
+
+    PegarDados()
   }
 
   if (true) {
     return (
 
       <View style={style.Main}>
+        <Modal
+          animationType="slide"
+          backdropColor="#161616b3"
+          visible={ModalVisivel}
+          onRequestClose={() => { setModalVisivel(!ModalVisivel) }}
+        >
+          <View
+            style={{
+              paddingTop: 50,
+              paddingHorizontal: 30,
+              backgroundColor: "#a0a0a0",
+              top: 25,
+              height: "100%",
+              borderRadius: 10
+            }}
+          >
+
+            <Text
+            style={{
+              fontSize: 32,
+              fontWeight: "700",
+              position: "absolute",
+              alignSelf: "center"
+
+            }}
+            >Edição</Text>
+
+            <View
+              style={{
+                position: "absolute",
+                top: 20,
+                right: 20,
+                width: 40,
+                height: 50,
+                zIndex: 10,
+              }}
+            >
+              <Button
+                title="X"
+                color="red"
+                onPress={() => { setModalVisivel(!ModalVisivel) }}
+              />
+            </View>
+
+            <View>
+              <View>
+                <Text>Nome do produto:</Text>
+                <TextInput
+                  value={Sabor}
+                  onChangeText={(txt) => setSabor(txt)}
+                  style={style.inputPadrao}
+                  placeholder="Ex: Caju"></TextInput>
+              </View>
+
+              <View>
+                <Text>Preço:</Text>
+                <TextInput
+                  keyboardType="numeric"
+                  value={Valor}
+                  onChangeText={(txt) => setValor(txt)}
+                  style={style.inputPadrao}
+                  placeholder="Ex: 3"></TextInput>
+              </View>
+
+              <View>
+                <Text>Quantidade:</Text>
+                <TextInput
+                  keyboardType="numeric"
+                  value={Quantidade}
+                  onChangeText={(txt) => setQuantidade(txt)}
+                  style={style.inputPadrao}
+                  placeholder="Ex: 13"></TextInput>
+              </View>
+
+              <View>
+                <Text>Disponivel:</Text>
+                <Switch
+                  style={{ alignSelf: "flex-start" }}
+                  thumbColor={Disponivel ? "#60fd30" : "#d1d1d1"}
+                  trackColor={{ true: "#d4fff8", false: "#ffffff" }}
+                  onValueChange={() => { setDisponivel(!Disponivel) }}
+                  value={Disponivel}
+                />
+              </View>
+
+              <View>
+                <Button
+                title="Salvar"
+                onPress={() => {}}
+                />
+              </View>
+            </View>
+
+          </View>
+
+        </Modal>
 
         <View style={style.conteiner}>
 
@@ -102,7 +258,7 @@ export default function Gerenciador() {
 
           {/* Lista de produtos cadastrado */}
           <View
-            style={{ height: "41%"}}
+            style={{ height: "41%" }}
           >
             <FlatList
               scrollEnabled
@@ -117,22 +273,28 @@ export default function Gerenciador() {
                   flexDirection: "row",
                   flexWrap: "wrap",
                   marginTop: 2,
-                  
                 }}>
-                  
+
                   <Text style={{ flex: 1, flexBasis: "33%" }}>{item.sabor}</Text>
                   <Text style={{ flex: 1, flexBasis: "33%" }}>R$: {item.preço}</Text>
                   <Text style={{ flex: 1, flexBasis: "33%" }}>Quantidade: {item.quantidade}</Text>
                   <Text style={{ flex: 1, flexBasis: "50%" }}>Disponivel: {item.disponivel ? "✔️" : "❌"}</Text>
                   <TouchableHighlight
-                  style={{
-                    backgroundColor: "#16e00f",
-                    width: 25,
-                    height: 25,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexBasis: "50%",
-                  }}
+                    style={{
+                      backgroundColor: "#16e00f",
+                      width: 25,
+                      height: 25,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexBasis: "10%",
+                      borderRadius: 5,
+                    }}
+                    onPress={() => {
+                      var db = []
+                      db.push(item)
+                      setEditar(Editar + item)
+                      setModalVisivel(!ModalVisivel)
+                    }}
                   >
                     <Text>✏️</Text>
                   </TouchableHighlight>
