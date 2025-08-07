@@ -3,6 +3,9 @@ import { View, Text, FlatList, TextInput, Switch, Button, TouchableHighlight, Mo
 import { StyleSheet } from "react-native"
 import Storage from "../../componentes/Storage"
 
+import ModalEditar from "../../componentes/ModalEditar"
+
+
 export default function Gerenciador() {
 
   const [Disponivel, setDisponivel] = useState(false)
@@ -10,7 +13,7 @@ export default function Gerenciador() {
   const [Valor, setValor] = useState("")
   const [Quantidade, setQuantidade] = useState("")
 
-  const [Editar, setEditar] = useState([])
+  const [Editar, setEditar] = useState()
   const [ModalVisivel, setModalVisivel] = useState(false)
 
   const [DB, setDB] = useState()
@@ -32,6 +35,7 @@ export default function Gerenciador() {
       catch (err) {
         console.warn(err)
       }
+
     }
 
 
@@ -100,106 +104,14 @@ export default function Gerenciador() {
     PegarDados()
   }
 
+  function Off() {
+    setModalVisivel(!ModalVisivel)
+  }
+
   if (true) {
     return (
 
       <View style={style.Main}>
-        <Modal
-          animationType="slide"
-          backdropColor="#161616b3"
-          visible={ModalVisivel}
-          onRequestClose={() => { setModalVisivel(!ModalVisivel) }}
-        >
-          <View
-            style={{
-              paddingTop: 50,
-              paddingHorizontal: 30,
-              backgroundColor: "#a0a0a0",
-              top: 25,
-              height: "100%",
-              borderRadius: 10
-            }}
-          >
-
-            <Text
-            style={{
-              fontSize: 32,
-              fontWeight: "700",
-              position: "absolute",
-              alignSelf: "center"
-
-            }}
-            >Edição</Text>
-
-            <View
-              style={{
-                position: "absolute",
-                top: 20,
-                right: 20,
-                width: 40,
-                height: 50,
-                zIndex: 10,
-              }}
-            >
-              <Button
-                title="X"
-                color="red"
-                onPress={() => { setModalVisivel(!ModalVisivel) }}
-              />
-            </View>
-
-            <View>
-              <View>
-                <Text>Nome do produto:</Text>
-                <TextInput
-                  value={Sabor}
-                  onChangeText={(txt) => setSabor(txt)}
-                  style={style.inputPadrao}
-                  placeholder="Ex: Caju"></TextInput>
-              </View>
-
-              <View>
-                <Text>Preço:</Text>
-                <TextInput
-                  keyboardType="numeric"
-                  value={Valor}
-                  onChangeText={(txt) => setValor(txt)}
-                  style={style.inputPadrao}
-                  placeholder="Ex: 3"></TextInput>
-              </View>
-
-              <View>
-                <Text>Quantidade:</Text>
-                <TextInput
-                  keyboardType="numeric"
-                  value={Quantidade}
-                  onChangeText={(txt) => setQuantidade(txt)}
-                  style={style.inputPadrao}
-                  placeholder="Ex: 13"></TextInput>
-              </View>
-
-              <View>
-                <Text>Disponivel:</Text>
-                <Switch
-                  style={{ alignSelf: "flex-start" }}
-                  thumbColor={Disponivel ? "#60fd30" : "#d1d1d1"}
-                  trackColor={{ true: "#d4fff8", false: "#ffffff" }}
-                  onValueChange={() => { setDisponivel(!Disponivel) }}
-                  value={Disponivel}
-                />
-              </View>
-
-              <View>
-                <Button
-                title="Salvar"
-                onPress={() => {}}
-                />
-              </View>
-            </View>
-
-          </View>
-
-        </Modal>
 
         <View style={style.conteiner}>
 
@@ -290,9 +202,7 @@ export default function Gerenciador() {
                       borderRadius: 5,
                     }}
                     onPress={() => {
-                      var db = []
-                      db.push(item)
-                      setEditar(Editar + item)
+                      setEditar(item)
                       setModalVisivel(!ModalVisivel)
                     }}
                   >
@@ -305,6 +215,8 @@ export default function Gerenciador() {
 
 
         </View>
+
+        <ModalEditar On={ModalVisivel} Off={Off} Dados={Editar}/>
 
       </View>
     )
