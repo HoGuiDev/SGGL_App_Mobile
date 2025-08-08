@@ -76,7 +76,7 @@ export default function index() {
         <View style={styled.BtnEntrar}>
           <Button
           /*() => {router.replace("./(tab)/Gerenciador")}*/
-            onPress={() => {router.replace("./(tab)/Gerenciador")}}
+            onPress={Entrar}
             title="Entrar"
             color={"#1dc71d"}
           />

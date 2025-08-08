@@ -24,7 +24,7 @@ export default function Layout() {
       <Tabs.Screen
         name="Analitcks"
         options={{
-          title: "Analitcks", 
+          title: "Analyze", 
           tabBarIcon({ focused }) {
             if (focused) {
               return <AntDesign name="piechart" size={24} color="blue" />

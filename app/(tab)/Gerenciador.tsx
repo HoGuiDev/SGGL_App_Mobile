@@ -13,7 +13,13 @@ export default function Gerenciador() {
   const [Valor, setValor] = useState("")
   const [Quantidade, setQuantidade] = useState("")
 
-  const [Editar, setEditar] = useState()
+  const [Editar, setEditar] = useState<{
+    ID: string
+    sabor: string
+    preço: string
+    quantidade: number
+    disponivel: boolean
+  }>()
   const [ModalVisivel, setModalVisivel] = useState(false)
 
   const [DB, setDB] = useState()
@@ -40,7 +46,6 @@ export default function Gerenciador() {
 
 
     getDados()
-    console.log(DB)
   }, [])
 
   function PegarDados() {
@@ -106,6 +111,7 @@ export default function Gerenciador() {
 
   function Off() {
     setModalVisivel(!ModalVisivel)
+    PegarDados()
   }
 
   if (true) {
@@ -216,7 +222,7 @@ export default function Gerenciador() {
 
         </View>
 
-        <ModalEditar On={ModalVisivel} Off={Off} Dados={Editar}/>
+        <ModalEditar On={ModalVisivel} Off={Off} Dados={Editar!}/>
 
       </View>
     )

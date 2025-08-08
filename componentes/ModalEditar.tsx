@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Modal, View, Text, TextInput, Button, Switch } from "react-native"
 import { StyleSheet } from "react-native"
+import Storage from "./Storage"
 
 interface Props {
   On: boolean
@@ -30,6 +31,53 @@ const ModalEditar = ({ On, Off, Dados}: Props) => {
     let quantidade = Dados.quantidade.toString()
     setQuantidade(quantidade)
     setDisponivel(Dados.disponivel)
+  }
+
+  async function Atualizar() {
+    const token = await Storage.get()
+    const request =  await fetch("http://192.168.1.8:3000/api/atualizar", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        ID: ID,
+        sabor: Sabor,
+        preço: Valor,
+        disponivel: Disponivel? "1": "false",
+        quantidade: Quantidade
+      })
+    })
+
+    if(request.status === 401 || request.status === 403) {
+      console.log("Ocorreu algum erro, tente novamente!")
+    }
+    else {
+      const res = await request.json()
+      Off()
+    }
+  }
+
+  async function Deletar() {
+    const token = await Storage.get()
+    const request = await fetch("http://192.168.1.8:3000/api/delet", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        id: ID
+      })
+    })
+
+    if(request.status === 401 || request.status === 403) {
+      console.log("Ocorreu algum erro, tente novamente!")
+    }
+    else {
+      Off()
+    }
   }
 
   return (
@@ -78,16 +126,11 @@ const ModalEditar = ({ On, Off, Dados}: Props) => {
         </View>
 
         <View>
-          <View>
-            <Text>Nome do produto:</Text>
-            <TextInput
-              value={Sabor}
-              onChangeText={(txt) => {setSabor(txt)}}
-              style={style.inputPadrao}
-              placeholder="Ex: Caju"></TextInput>
+          <View style={{marginBottom: 3}}>
+            <Text>Nome do produto: {<Text style={{fontWeight: "700"}}>{Sabor}</Text>}</Text>
           </View>
 
-          <View>
+          <View style={{marginBottom: 3}}>
             <Text>Preço:</Text>
             <TextInput
               keyboardType="numeric"
@@ -97,7 +140,7 @@ const ModalEditar = ({ On, Off, Dados}: Props) => {
               placeholder="Ex: 3"></TextInput>
           </View>
 
-          <View>
+          <View style={{marginBottom: 3}}>
             <Text>Quantidade:</Text>
             <TextInput
               keyboardType="numeric"
@@ -107,23 +150,39 @@ const ModalEditar = ({ On, Off, Dados}: Props) => {
               placeholder="Ex: 13"></TextInput>
           </View>
 
-          <View>
+          <View style={{marginBottom: 3}}>
             <Text>Disponivel:</Text>
             <Switch
               style={{ alignSelf: "flex-start" }}
               thumbColor={Disponivel ? "#60fd30" : "#d1d1d1"}
               trackColor={{ true: "#d4fff8", false: "#ffffff" }}
-              onValueChange={() => {setDisponivel(!Disponivel)}}
-              value={Disponivel}
+              onChange={() => {setDisponivel(!Disponivel)}}
+              value={Disponivel? true: false}
+              
             />
           </View>
 
           <View>
             <Button
               title="Salvar"
-              onPress={() => { }}
+              onPress={() => {Atualizar()}}
             />
           </View>
+
+        </View>
+
+        <View
+        style={{
+          position: "absolute",
+          bottom: 50,
+          left: "50%"
+        }}
+        >
+          <Button
+            title="Deletar"
+            onPress={() => {Deletar()}}
+            color={"red"}
+          />
         </View>
 
       </View>
